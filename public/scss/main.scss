@@ -1,5 +1,52 @@
-nav{
+.navSite{
     height:35px;
     width: 100%; 
     background-color: brown; 
+    display: flex; 
+    flex-flow: row nowrap; 
+    justify-content: space-between; 
+    align-items: center; 
+
+    ul{
+        width: 33%; 
+        display: flex; 
+        flex-flow: row nowrap; 
+        justify-content: center; 
+        align-items: center; 
+
+        li{
+            margin: 0 5px;
+            a{
+                color:white; 
+                font-size: 1.2em; 
+                font-weight: bold; 
+            }
+            
+            &:hover{
+                a{
+                    color:black; 
+                }
+            }
+        }
+    }
+
+    .userCo{
+        span{
+            color: white; 
+            font-size: 1.2em; 
+            font-weight: bold; 
+            margin-right: 25px; 
+
+            &:after{
+                content:''; 
+                position: absolute;
+                top:14px;  
+                right: 10px;
+                height: 10px; 
+                width: 10px; 
+                border-radius: 50%; 
+                background-color: green; 
+            }
+        }
+    }
 }

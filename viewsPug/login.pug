@@ -1,0 +1,24 @@
+extends _layout.pug
+
+block content
+    include -nav.pug
+    
+    p= valueErr
+    div
+        h2 Connexion
+        form(action="http://localhost:8090/login" method="POST")
+            label Pseudo
+            input(type="text" name="pseudo")
+            label Mot de passe
+            input(type="password" name="mdp")
+            button(type="submit") Connexion
+    div
+        h2 Inscription
+        form(action="http://localhost:8090/login" method="POST")
+            label Pseudo
+            input(type="text" name="pseudo")
+            label Mot de passe
+            input(type="password" name="mdp")
+            label Email
+            input(type="text" name="email")
+            button(type="submit" ) Enregistrer

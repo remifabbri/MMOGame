@@ -1,7 +1,45 @@
-nav {
+.navSite {
   height: 35px;
   width: 100%;
   background-color: brown;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+.navSite ul {
+  width: 33%;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+}
+.navSite ul li {
+  margin: 0 5px;
+}
+.navSite ul li a {
+  color: white;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+.navSite ul li:hover a {
+  color: black;
+}
+.navSite .userCo span {
+  color: white;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-right: 25px;
+}
+.navSite .userCo span:after {
+  content: "";
+  position: absolute;
+  top: 14px;
+  right: 10px;
+  height: 10px;
+  width: 10px;
+  border-radius: 50%;
+  background-color: green;
 }
 
 /*# sourceMappingURL=main.css.map */

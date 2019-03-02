@@ -3,11 +3,13 @@ const objectId = require('mongodb').ObjectID;
 
 const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb://localhost:27017/';
-const dbName = 'MMOGAME';
+const dbName = 'MMOGame';
 
 const router = express.Router();
 
 router.get('/', function(req, res){
+
+    let pseudoUser = req.session.pseudo; 
 
     MongoClient.connect(url, {useNewUrlParser : true}, function(err, client){
         const db = client.db(dbName); 
@@ -19,7 +21,7 @@ router.get('/', function(req, res){
             }else{
                 client.close();
                 res.render('home.pug', {
-                    value1: 'récupérer des infos de la base de donnée',
+                    pseudoUser: pseudoUser,
                     datas: docs
                 });
             }
@@ -28,58 +30,73 @@ router.get('/', function(req, res){
 }); 
 
 
-
-
-router.get('/user', function (req, res) {
-    res.render('user.pug', {
-        value1: req.session.idUser,
-        value2: req.session.nomUser 
-    });
-}); 
-
-router.post('/user', function (req, res) { 
-
-    MongoClient.connect(url, {useNewUrlParser : true}, function(err, client){
-        const db = client.db(dbName); 
-        const collection = db.collection('utilisateurs'); 
-        
-        collection.find({}).toArray(function(err, docs) {
-            if(err){
-                console.log(err); 
-            }else{
-                //console.log(req.session); 
-                //console.log(req.body);
-                for(var u=0; u<docs.length; u++){
-                    if (docs[u].identifiant === req.body.identifiant && docs[u].mdp === req.body.mdp){
-                        let idUser = docs[u]._id; 
-                        let nomUser = docs[u].identifiant;
-
-                        req.session.connect = true;
-                        req.session.idUser = docs[u]._id; 
-                        req.session.nomUser = docs[u].identifiant;
-
-                        client.close();
-                        res.render('user.pug', {
-                            value1: idUser,
-                            value2: nomUser
-                        })
-                    }else{
-                        client.close();
-                        res.render('login.pug', {
-                            valueErr:'identifiant ou mots de passe inconnue',
-                        })
-                    }
-                }
-            }
-            ;
-        });
-    })
-});
-
 router.get('/login', function(req, res){
     res.render('login.pug');
 });
 
+router.post('/login', function(req, res){
+    MongoClient.connect(url, {useNewUrlParser : true}, function(err, client){
+        const db = client.db(dbName); 
+        const collection = db.collection('utilisateurs'); 
+        console.log(req.body); 
+        if(req.body.email){
+
+            let newUser = {
+                pseudo: req.body.pseudo, 
+                mdp: req.body.mdp,
+                email: req.body.email
+            }
+
+            collection.insertOne(newUser, function(err){
+                if (err){
+                    console.log(err); 
+                }else{
+                    let pseudoUser = req.body.pseudo; 
+
+                    req.session.connected = true;
+                    req.session.pseudo = req.body.pseudo; 
+
+                    client.close();
+                    res.render('home.pug', {
+                        pseudoUser: pseudoUser
+                    }); 
+                }
+            }); 
+        }
+
+        if(!req.body.email){
+
+            collection.find({}).toArray(function(err, docs) {
+                if(err){
+                    console.log(err); 
+                }else{
+                    //console.log(req.session); 
+                    //console.log(req.body);
+    
+                    for(var u=0; u<docs.length; u++){
+                        if (docs[u].pseudo === req.body.pseudo && docs[u].mdp === req.body.mdp){
+                            
+                            req.session.connected = true;
+                            req.session.pseudo = req.body.pseudo;
+                            
+                            let pseudoUser= req.session.pseudo;
+    
+                            client.close();
+                            res.render('home.pug', {
+                                pseudoUser: pseudoUser
+                            })
+                        }else{
+                            client.close();
+                            res.render('login.pug', {
+                                valueErr:'identifiant ou mots de passe inconnue',
+                            })
+                        }
+                    }
+                }
+            });
+        }
+    })
+})
 
 
 module.exports = router;

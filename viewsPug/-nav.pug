@@ -1,6 +1,11 @@
-nav
+nav.navSite
     div
-    ul
+    ul  
         li
-            a(href="/login")
+            a(href="/") Home
+        li
+            a(href="/login") Login
+    div.userCo
+        if(pseudoUser)
+            span= pseudoUser
         

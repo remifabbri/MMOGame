@@ -10,7 +10,7 @@ const root = require('./router/root');
 
 const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb://localhost:27017/';
-const dbName = 'MMOGAME';
+const dbName = 'MMOGame';
 
 const bodyParser = require('body-parser');
 
