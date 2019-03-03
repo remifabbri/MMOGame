@@ -1,12 +1,13 @@
 
-
 const express = require('express');
 const session = require('express-session');
 const objectId = require('mongodb').ObjectID;
 
 const app = express(); 
+//const server = app.listen(8090);
+const serv = require('http').Server(app);
+const io = require('socket.io-client')(serv);
 
-const root = require('./router/root');
 
 const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb://localhost:27017/';
@@ -26,7 +27,24 @@ app.use(session({
 app.set('view engine', 'pug');
 app.set('views', './viewsPug');
 
+const root = require('./router/root');
+
+app.use('/node', express.static(__dirname + '/node_modules'));
 app.use('/', express.static(__dirname +'/public'));
+
+io.on('connection', function(client) {
+  console.log('Client connected...');
+
+  client.on('join', function(data) {
+      console.log(data);
+      client.emit('messages', 'Hello from server');
+  });
+  
+  client.on('messages', function(data) {
+      client.emit('broad', data);
+      client.broadcast.emit('broad',data);
+  });
+});
 
 app.use('/', root); 
 
@@ -36,4 +54,4 @@ app.use(function(req,res) {
 
 app.listen(8090, function(){
     console.log('Server en écoute sur le port : 8090'); 
-});
+}); 
