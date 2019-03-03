@@ -3,10 +3,10 @@ const express = require('express');
 const session = require('express-session');
 const objectId = require('mongodb').ObjectID;
 
-const app = express(); 
+const app = express();
 //const server = app.listen(8090);
-const serv = require('http').Server(app);
-const io = require('socket.io')(serv);
+const serv = app.listen(8090); 
+const io = require('socket.io').listen(serv);
 
 
 const MongoClient = require('mongodb').MongoClient;
@@ -52,6 +52,6 @@ app.use(function(req,res) {
     res.status('404').send('Erreur');
 });
 
-app.listen(8090, function(){
+/* app.listen(8090, function(){
     console.log('Server en écoute sur le port : 8090'); 
-}); 
+});  */

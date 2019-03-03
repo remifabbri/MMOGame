@@ -8,8 +8,8 @@ block content
     div.chat
         #future
         form#form
-        input#chat_input(type='text')
-        input(type='submit', value='Send')
+            input#chat_input(type='text')
+            input(type='submit', value='Send')
 
     div.btnStartGame
         button(type="button") Matchmaking
@@ -32,6 +32,7 @@ block content
             });
             $('form').submit(function(e){
                 e.preventDefault();
+                console.log(e); 
                 var message = $('#chat_input').val();
                 socket.emit('messages', message);
             });

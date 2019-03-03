@@ -50,3 +50,16 @@
         }
     }
 }
+
+.chat{
+    position: absolute; 
+    height: calc(100% - 35px); 
+    top: 35px; 
+    right: 0px;
+    background-color: rgba(0, 0, 0, .2);
+    border-left: 1px solid rgba(0, 0, 0, .3);
+    
+    display: flex; 
+    flex-flow: column nowrap; 
+    justify-content: flex-end; 
+}
