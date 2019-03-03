@@ -6,7 +6,7 @@ const objectId = require('mongodb').ObjectID;
 const app = express(); 
 //const server = app.listen(8090);
 const serv = require('http').Server(app);
-const io = require('socket.io-client')(serv);
+const io = require('socket.io')(serv);
 
 
 const MongoClient = require('mongodb').MongoClient;
