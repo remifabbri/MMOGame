@@ -27,7 +27,32 @@ router.get('/', function(req, res){
             }
         });
     })
-}); 
+});
+
+router.get('/pushChatHistory', function(req, res){
+
+    var nameUser = req.query.user; 
+    var messageUser = req.query.message; 
+    console.log(nameUser); 
+    console.log(messageUser);
+    MongoClient.connect(url, {useNewUrlParser : true}, function(err, client){
+        const db = client.db(dbName); 
+        const collection = db.collection('chatHistory');
+        
+        collection.countDocuments().then(function(result){
+            console.log(result);
+            var limiteStorage = result - 5; 
+            /* if(result < 100){} */
+            collection.insertOne({
+                position: result+1, 
+                name: nameUser,
+                message : messageUser
+            });
+            collection.deleteMany({position: { $lte: limiteStorage} });
+            client.close(); 
+        });
+    }); 
+});
 
 
 router.get('/login', function(req, res){
