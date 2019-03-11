@@ -1,13 +1,11 @@
 
 const express = require('express');
+const app = express();
+const http = require('http').Server(app); 
+const io = require('socket.io').listen(http);
+
 const session = require('express-session');
 const objectId = require('mongodb').ObjectID;
-
-const app = express();
-//const server = app.listen(8090);
-const serv = app.listen(8090); 
-const io = require('socket.io').listen(serv);
-
 
 const MongoClient = require('mongodb').MongoClient;
 const url = 'mongodb://localhost:27017/';
@@ -28,23 +26,27 @@ app.set('view engine', 'pug');
 app.set('views', './viewsPug');
 
 const root = require('./router/root');
+app.set('socketio', io);
+
 
 app.use('/node', express.static(__dirname + '/node_modules'));
 app.use('/', express.static(__dirname +'/public'));
 
-io.on('connection', function(client) {
-  console.log('Client connected...');
 
-  client.on('join', function(data) {
-      console.log(data);
-      client.emit('messages', 'Hello from server');
-  });
-  
-  client.on('messages', function(data) {
-      client.emit('broad', data);
-      client.broadcast.emit('broad',data);
-  });
-});
+
+/* var roomno = 1;
+var nsp = io.of('/my-namespace');
+nsp.on('connection', function(socket) {
+   console.log('someone connected');
+   nsp.emit('hi', 'Hello everyone!');
+
+   if(io.nsps['/'].adapter.rooms["room-"+roomno] && io.nsps['/'].adapter.rooms["room-"+roomno].length > 1) roomno++;
+   socket.join("room-"+roomno);
+
+   //Send this event to everyone in the room.
+   io.sockets.in("room-"+roomno).emit('connectToRoom', "You are in room no. "+roomno);
+
+}); */
 
 app.use('/', root); 
 
@@ -52,6 +54,8 @@ app.use(function(req,res) {
     res.status('404').send('Erreur');
 });
 
-/* app.listen(8090, function(){
+http.listen(8090, function(){
     console.log('Server en écoute sur le port : 8090'); 
-});  */
+});
+
+ 

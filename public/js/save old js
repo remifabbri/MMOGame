@@ -1,17 +1,12 @@
-/* 
-* Socket.io    namspace = /game alias nspGame
-*/
 
 // var global du jeu
 var canvas, 
     ctx,
-    widthCanvas = 800,
-    heightCanvas = 600,
+    widthCanvas = 2000,
+    heightCanvas = 2000,
     emitePosPlayer,
-    joueur,
-    ennemy
-
-var socket = io('ws://127.0.0.1:8090/game');
+    monJoueur,
+    lesJoueurs
 
 function clearRect(){ 
     ctx.clearRect(0,0,widthCanvas, heightCanvas); 
@@ -110,106 +105,51 @@ var Players = function(x,y,color){ // fonction constructeur des joueurs
 /**
  * Gestion du jeux 
  */
-var codeset = {
-    90 : false,
-    68 : false,
-    83 : false,
-    81 : false
-}
 
-var idinterval90,
-    idinterval68
+document.addEventListener('keypress', function(e){
 
-var animation = false; 
-
-document.addEventListener('keydown', function(e){
-    if(e.keyCode in codeset){
-        codeset[e.keyCode] = true;
-        if (codeset[90] && codeset[68]){
-            if(codeset[90]){
-                idinterval90 = setInterval(function(){
-                    joueur.posY = joueur.posY-10;
-                    emitInfoJoueur(); 
-                }, 1000/30); 
-            }
-            if(codeset[68]){
-                idinterval68 = setInterval(function(){
-                    joueur.posX = joueur.posX+10;
-                }, 1000/30); 
-            }
-            
-        }
+    var code = e.key; 
+    //console.log(e); 
+    switch(code){
+        case "z": 
+            monJoueur.y = monJoueur.y-10;
+            emitePosPlayer();  
+            break;
+        case "d":
+            monJoueur.x = monJoueur.x+10;
+            emitePosPlayer(); 
+            break; 
+        case "q":
+            monJoueur.x = monJoueur.x-10;
+            emitePosPlayer(); 
+            break;
+        case "s":
+            monJoueur.y = monJoueur.y+10;
+            emitePosPlayer();  
+            break;  
     }
 }); 
 
-document.addEventListener('keyup', function(e){
-    if(e.keyCode in codeset){
-        codeset[e.keyCode] = false;
-        console.log(codeset); 
-    }
-}); 
 
-function checkSetIntervalPosition(){
-    if(!codeset[90]){
-        clearInterval(idinterval90);
-    }
-    if(!codeset[68]){
-        clearInterval(idinterval68);
-    }
-}
- 
 
-function emitInfoJoueur(){
-    socket.emit("changeInfoJoueur", joueur); 
-}
-
-function connectPlayer(){
-    
-    socket.on('currentPlayers', function(players){
-        Object.keys(players).forEach(function (id) {
-            if (players[id].playerId === socket.id) {
-                console.log('trouvée');
-                //console.log(players[id]); 
-                joueur = new Players(players[id].x, players[id].y, 'blue');
-                //console.log(joueur);  
-              } else {
-                console.log('pas trouvée');
-                ennemy = new Players(players[id].x, players[id].y, 'red'); 
-              }
-        });
-    });
-    socket.on('newPlayer', function (playerInfo) {
-        console.log(playerInfo);
-        ennemy = new Players(playerInfo.x, playerInfo.y, 'red'); 
-    });
-    socket.on('playerMoved', function(playerInfo){
-        console.log(playerInfo);
-        ennemy.posX = playerInfo.x; 
-        ennemy.posY = playerInfo.y; 
-    })
-}
 
 var init = function(){ // Initialisation du canvas
     canvas = document.querySelector('canvas');
     ctx = canvas.getContext('2d');
     ctx.canvas.width = widthCanvas; 
     ctx.canvas.height= heightCanvas;
+    player1 = new Players(100, 50, 'blue');
     player2 = new Players(50, 100, 'red');
-    connectPlayer(); 
 
-    checkSetIntervalPosition(); 
+    
     moteurJeux();
 }
 
 var moteurJeux = function(){
     clearRect();
     background();
-    if(joueur){
-        joueur.image();
-    }
-    if(ennemy){
-        ennemy.image();
-    }    
+    player1.image(); 
+    player2.image(); 
     /* console.log(monJoueur);
     console.log(lesJoueurs); */  
     requestAnimationFrame(moteurJeux, 1000/30); 

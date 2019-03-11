@@ -45,13 +45,42 @@
 .chat {
   position: absolute;
   height: calc(100% - 35px);
+  width: 250px;
   top: 35px;
   right: 0px;
-  background-color: rgba(0, 0, 0, 0.2);
-  border-left: 1px solid rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.8);
+  border-left: 1px solid rgba(0, 0, 0, 0.9);
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-end;
+}
+
+#future {
+  padding: 5px;
+}
+#future div {
+  position: relative;
+  width: 100%;
+}
+#future div span:first-child {
+  position: absolute;
+  top: 0;
+  right: 250px;
+  color: red;
+  width: auto;
+  text-align: right;
+  font-size: 1em;
+}
+#future div span {
+  width: 100%;
+  color: darkgrey;
+  font-size: 0.7em;
+  padding-bottom: 5px;
+}
+#future div p {
+  color: lightgrey;
+  margin-bottom: 5px;
+  word-wrap: break-word;
 }
 
 /*# sourceMappingURL=main.css.map */

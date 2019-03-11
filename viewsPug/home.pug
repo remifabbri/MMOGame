@@ -12,51 +12,48 @@ block content
             input(type='submit', value='Send')
 
     div.btnStartGame
-        button(type="button") Matchmaking
+        button#matchmaking(type="button") Matchmaking
     div.listUserConnected
         h2 Joueurs Connectés
         div
     
     script(src='/node/jquery/dist/jquery.js')
     
-    script(src='/node/socket.io-client/dist/socket.io.js')
+    script(src="/socket.io/socket.io.js")
 
     script.
         $(function() {
-            var socket = io.connect('http://localhost:8090');
+            var socket = io.connect();
             socket.on('connect', function(data) {
                 socket.emit('join', 'Hello World from client');
             });
             socket.on('broad', function(data) {
-                $('#future').append(data+ "<br/>");
+                var dateMessage = new Date(data.time).toLocaleTimeString('fr-FR');
+                $('#future').append("<div><span>" + data.pseudoUser + "</span><span>" + dateMessage + "</span><br/><p>" + data.message + "</p></div>");
             });
             $('form').submit(function(e){
                 e.preventDefault();
                 console.log(e);
-                var pseudoUser = $('#PseudoUser').text(); 
-                var message = $('#chat_input').val();
-                if(!message == ''){
-                    socket.emit('messages', message);
-                    $('#chat_input').val('');
-                    console.log(pseudoUser); 
-                    
-                    $.ajax({
-                        url: '/pushChatHistory', 
-                        method: 'GET',
-                        dataType: 'json',
-                        data:{
-                            user: pseudoUser,
-                            message: message
-                        },
-                        success: function(objectObtenu){
-                            console.log(objectObtenu);
-                            $('#text').html(objectObtenu);  
-                        },
-                        error: function(objectJq){
-                            console.log(objectJq); 
-                        }
-                    }); 
+                //var pseudoUser = $('#PseudoUser').text(); 
+                //var message = $('#chat_input').val();
+                var objectMessage ={
+                    pseudoUser : $('#PseudoUser').text(),
+                    message : $('#chat_input').val(),
+                    time : Date.now()
                 }
+                if(!objectMessage.message == ''){
+                    socket.emit('messages', objectMessage);
+                    $('#chat_input').val('');
+                    console.log(pseudoUser);   
+                }
+            });
+
+            $("#matchmaking").on('click', function(e){
+                var socketRoom = io.connect('/my-namespace');
+                socket.on('hi',function(data) {
+                    document.body.innerHTML = '';
+                    document.write(data);
+                }); 
             });
         }); 
 
