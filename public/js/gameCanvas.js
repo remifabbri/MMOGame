@@ -111,52 +111,105 @@ var Players = function(x,y,color){ // fonction constructeur des joueurs
  * Gestion du jeux 
  */
 var codeset = {
-    90 : false,
-    68 : false,
-    83 : false,
-    81 : false
+    90 : false, // key z 
+    68 : false, // key d
+    83 : false, // key s
+    81 : false  // key q
 }
 
-var idinterval90,
-    idinterval68
+var idInterval90,
+    idInterval68,
+    idInterval83,
+    idInterval81
+
+var interval90 = false,
+    interval68 = false,
+    interval83 = false,
+    interval81 = false
 
 var animation = false; 
 
 document.addEventListener('keydown', function(e){
     if(e.keyCode in codeset){
         codeset[e.keyCode] = true;
-        if (codeset[90] && codeset[68]){
-            if(codeset[90]){
-                idinterval90 = setInterval(function(){
+        console.log(codeset[e.keyCode]); 
+        if(codeset[90]){
+            if(!interval90){
+                idInterval90 = setInterval(function(){
                     joueur.posY = joueur.posY-10;
+                    interval90 = true;
                     emitInfoJoueur(); 
-                }, 1000/30); 
-            }
-            if(codeset[68]){
-                idinterval68 = setInterval(function(){
-                    joueur.posX = joueur.posX+10;
-                }, 1000/30); 
+                }, 1000/30);
             }
             
+        }
+        if(codeset[68]){
+            if(!interval68){
+                idInterval68 = setInterval(function(){
+                    joueur.posX = joueur.posX+10;
+                    interval68 = true;
+                    emitInfoJoueur();
+                }, 1000/30);
+            }   
+        }
+        if(codeset[83]){
+            if(!interval83){
+                idInterval83 = setInterval(function(){
+                    joueur.posY = joueur.posY+10;
+                    interval83 = true;
+                    emitInfoJoueur();
+                }, 1000/30);
+            }
+        }
+        if(codeset[81]){
+            if(!interval81){
+                idInterval81 = setInterval(function(){
+                    joueur.posX = joueur.posX-10;
+                    interval81 = true;
+                    emitInfoJoueur();
+                }, 1000/30);
+            } 
         }
     }
 }); 
 
 document.addEventListener('keyup', function(e){
     if(e.keyCode in codeset){
+        console.log('keyup listener ok ! touche '+ e.keyCode + ' UP'); 
         codeset[e.keyCode] = false;
-        console.log(codeset); 
+        console.log(e.keyCode); 
+        switch(e.keyCode){
+            case 90:
+                console.log('je passe ici'); 
+                clearInterval(idInterval90);
+                interval90 = false; 
+                break;
+            case 68:
+                clearInterval(idInterval68);
+                interval68 = false; 
+                break; 
+            case 83:
+                clearInterval(idInterval83);
+                interval83 = false;
+                break; 
+            case 81:
+                clearInterval(idInterval81);
+                interval81 = false;
+                break;
+            default:
+                console.log('je passe dans le default du switch !'); 
+        } 
     }
 }); 
 
-function checkSetIntervalPosition(){
+/* function checkSetIntervalPosition(){
     if(!codeset[90]){
         clearInterval(idinterval90);
     }
     if(!codeset[68]){
         clearInterval(idinterval68);
     }
-}
+} */
  
 
 function emitInfoJoueur(){
@@ -197,7 +250,7 @@ var init = function(){ // Initialisation du canvas
     player2 = new Players(50, 100, 'red');
     connectPlayer(); 
 
-    checkSetIntervalPosition(); 
+    //checkSetIntervalPosition(); 
     moteurJeux();
 }
 
