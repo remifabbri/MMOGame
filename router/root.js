@@ -83,6 +83,7 @@ router.get('/game', function(req, res){
             console.log(infoJoueur);
             players[socket.id].x = infoJoueur.posX; 
             players[socket.id].y = infoJoueur.posY;
+            players[socket.id].balises = infoJoueur.baliseDisponible;
             socket.broadcast.emit('playerMoved', players[socket.id]);
         });     
         

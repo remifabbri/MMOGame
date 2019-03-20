@@ -72,10 +72,14 @@ var Players = function(x,y,color){ // fonction constructeur des joueurs
     this.baliseSelect = 0;
     this.baliseConnected = false;     
 
-    this.Balise = function(){ // function Constructeur de balise
-        this.posBaliseX = baliseX; 
-        this.posBaliseY = baliseY;
-        this.timeToUse = 5000; 
+    this.balise = function(){ // function Constructeur de balise
+        for( var b=0; b<this.baliseDisponible.length; b++ ){
+            //console.log('je parcours les balises du joueur'); 
+            ctx.beginPath(); 
+            ctx.fillStyle = this.color; 
+            ctx.arc(this.baliseDisponible[b].Balise.balisePosX, this.baliseDisponible[b].Balise.balisePosY, this.baliseDisponible[b].Balise.rayon, 0, 2 * Math.PI );
+            ctx.fill();
+        }
     }
 
     this.image = function (){ // image visuelle du joueur
@@ -107,6 +111,34 @@ var Players = function(x,y,color){ // fonction constructeur des joueurs
     }
 }
 
+var timestampBalise;  
+var Balise = function(){
+    this.balisePosX = Math.floor(Math.random()*800); 
+    this.balisePosY = Math.floor(Math.random()*600);
+    this.baliseRayon = 5; 
+}
+
+function creationBalise(){
+    var tempsExcution = Date.now();
+    var calculTime = tempsExcution - timestampBalise; 
+    if(calculTime > 5000 || isNaN(calculTime)){
+        console.log(joueur); 
+        joueur.baliseDisponible.push( new Balise());
+        timestampBalise = Date.now();
+        emitInfoJoueur(); 
+    }
+};
+
+/* drawBalise = function(){ // function Constructeur de balise
+    for( var b=0; b<joueur.balises.length; b++ ){
+        //console.log('je parcours les balises du joueur'); 
+        ctx.beginPath(); 
+        ctx.fillStyle = 'blue'; 
+        ctx.arc(joueur.balises[b].balisePosX, joueur.balises[b].balisePosY, joueur.balises[b].rayon, 0, 2 * Math.PI );
+        ctx.fill();
+    }
+} */
+
 /**
  * Gestion du jeux 
  */
@@ -134,7 +166,7 @@ document.addEventListener('keydown', function(e){
     var Rebond = 15;
     if(e.keyCode in codeset){
         codeset[e.keyCode] = true;
-        console.log(codeset[e.keyCode]); 
+        //console.log(codeset[e.keyCode]); 
         if(codeset[90]){
             if(!interval90){
                 idInterval90 = setInterval(function(){
@@ -214,12 +246,10 @@ document.addEventListener('keydown', function(e){
 
 document.addEventListener('keyup', function(e){
     if(e.keyCode in codeset){
-        console.log('keyup listener ok ! touche '+ e.keyCode + ' UP'); 
+        //console.log('keyup listener ok ! touche '+ e.keyCode + ' UP'); 
         codeset[e.keyCode] = false;
-        console.log(e.keyCode); 
         switch(e.keyCode){
             case 90:
-                console.log('je passe ici'); 
                 clearInterval(idInterval90);
                 interval90 = false; 
                 break;
@@ -241,15 +271,7 @@ document.addEventListener('keyup', function(e){
     }
 }); 
 
-/* function checkSetIntervalPosition(){
-    if(!codeset[90]){
-        clearInterval(idinterval90);
-    }
-    if(!codeset[68]){
-        clearInterval(idinterval68);
-    }
-} */
- 
+
 
 function emitInfoJoueur(){
     socket.emit("changeInfoJoueur", joueur); 
@@ -286,10 +308,8 @@ var init = function(){ // Initialisation du canvas
     ctx = canvas.getContext('2d');
     ctx.canvas.width = widthCanvas; 
     ctx.canvas.height = heightCanvas;
-    player2 = new Players(50, 100, 'red');
-    connectPlayer(); 
+    connectPlayer();
 
-    //checkSetIntervalPosition(); 
     moteurJeux();
 }
 
@@ -298,14 +318,16 @@ var moteurJeux = function(){
     background();
     if(joueur){
         joueur.image();
+        creationBalise();
+        joueur.balise(); 
+        //drawBalise();  
     }
     if(ennemy){
         ennemy.image();
-    }    
-    /* console.log(monJoueur);
-    console.log(lesJoueurs); */  
+        //ennemy.balise(); 
+    }
+      
     requestAnimationFrame(moteurJeux, 1000/30); 
-    //moteur = setTimeout(moteurJeux, 1000/30); 
 }
 
 init();
