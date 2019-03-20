@@ -59,8 +59,8 @@ router.get('/game', function(req, res){
         // create a new player and add it to our players object
         players[socket.id] = {
             playerId: socket.id,
-            x: Math.floor(Math.random() * 800) + 50,
-            y: Math.floor(Math.random() * 600) + 50,
+            x: Math.floor(Math.random() * 800),
+            y: Math.floor(Math.random() * 600),
             balises: []
             
         };

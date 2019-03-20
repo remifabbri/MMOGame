@@ -130,15 +130,26 @@ var interval90 = false,
 var animation = false; 
 
 document.addEventListener('keydown', function(e){
+    //Valeur du margin a * par 5
+    var Rebond = 15;
     if(e.keyCode in codeset){
         codeset[e.keyCode] = true;
         console.log(codeset[e.keyCode]); 
         if(codeset[90]){
             if(!interval90){
                 idInterval90 = setInterval(function(){
-                    joueur.posY = joueur.posY-10;
-                    interval90 = true;
-                    emitInfoJoueur(); 
+                    if (joueur.posY > 25){
+                        joueur.posY = joueur.posY - 10;
+                        interval90 = true;
+                        emitInfoJoueur(); 
+                    }
+                    else{
+                        clearInterval(idInterval90);
+                        for(var i = 0; i<5; i++){
+                            joueur.posY = joueur.posY + Rebond;
+                            emitInfoJoueur();
+                        }
+                    }  
                 }, 1000/30);
             }
             
@@ -146,27 +157,55 @@ document.addEventListener('keydown', function(e){
         if(codeset[68]){
             if(!interval68){
                 idInterval68 = setInterval(function(){
-                    joueur.posX = joueur.posX+10;
-                    interval68 = true;
-                    emitInfoJoueur();
+                    if (joueur.posX < widthCanvas - joueur.rayon){   
+                        joueur.posX = joueur.posX + 10;
+                        interval68 = true;
+                        emitInfoJoueur();
+                    }
+                    else{
+                        clearInterval(idInterval68);
+                        for(var i = 0; i<5; i++){
+                            joueur.posX = joueur.posX - Rebond;
+                            emitInfoJoueur();
+                        }
+                    }
                 }, 1000/30);
             }   
         }
         if(codeset[83]){
             if(!interval83){
                 idInterval83 = setInterval(function(){
-                    joueur.posY = joueur.posY+10;
-                    interval83 = true;
-                    emitInfoJoueur();
+                    if (joueur.posY < heightCanvas - joueur.rayon){
+                        joueur.posY = joueur.posY + 10;
+                        interval83 = true;
+                        emitInfoJoueur();
+                    }
+                    else{
+                        clearInterval(idInterval83);
+                        for(var i = 0; i<5; i++){
+                            joueur.posY = joueur.posY - Rebond;
+                            emitInfoJoueur();
+                        }
+                    }
+                    
                 }, 1000/30);
             }
         }
         if(codeset[81]){
             if(!interval81){
                 idInterval81 = setInterval(function(){
-                    joueur.posX = joueur.posX-10;
-                    interval81 = true;
-                    emitInfoJoueur();
+                    if (joueur.posX > 25){
+                        joueur.posX = joueur.posX - 10;
+                        interval81 = true;
+                        emitInfoJoueur();
+                    }
+                    else{
+                        clearInterval(idInterval81);
+                        for(var i = 0; i<5; i++){
+                            joueur.posX = joueur.posX + Rebond;
+                            emitInfoJoueur();
+                        }
+                    }
                 }, 1000/30);
             } 
         }
@@ -246,7 +285,7 @@ var init = function(){ // Initialisation du canvas
     canvas = document.querySelector('canvas');
     ctx = canvas.getContext('2d');
     ctx.canvas.width = widthCanvas; 
-    ctx.canvas.height= heightCanvas;
+    ctx.canvas.height = heightCanvas;
     player2 = new Players(50, 100, 'red');
     connectPlayer(); 
 
