@@ -61,6 +61,7 @@ router.get('/game', function(req, res){
             playerId: socket.id,
             x: Math.floor(Math.random() * 800),
             y: Math.floor(Math.random() * 600),
+            rayon: 15,
             balises: []
             
         };
@@ -81,9 +82,9 @@ router.get('/game', function(req, res){
 
         socket.on('changeInfoJoueur', function(infoJoueur){
             console.log(infoJoueur);
-            players[socket.id].x = infoJoueur.posX; 
-            players[socket.id].y = infoJoueur.posY;
-            players[socket.id].balises = infoJoueur.baliseDisponible;
+            players[socket.id].x = infoJoueur.x; 
+            players[socket.id].y = infoJoueur.y;
+            players[socket.id].balises = infoJoueur.balises;
             socket.broadcast.emit('playerMoved', players[socket.id]);
         });     
         

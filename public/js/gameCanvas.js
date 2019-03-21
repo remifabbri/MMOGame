@@ -10,6 +10,8 @@ var canvas,
     emitePosPlayer,
     joueur,
     ennemy
+    colorEnnemy = "red"; 
+    colorJoueur = "blue";  
 
 var socket = io('ws://127.0.0.1:8090/game');
 
@@ -22,125 +24,56 @@ function background(){
     ctx.fillRect(0, 0, widthCanvas, heightCanvas); 
 }
 
+
 /**
- * Fonction Constructeur des joueurs
+ * Gestion du jeux 
  */
-
-/* var monJoueur= {
-    x : positionX, 
-    y : posiitionY,
-    nbBalises : 0,  
-    balises : [
-        balise= {
-            id = 0, 
-            x : positionBaliseX,
-            y : positionBaliseY
-        },
-        balise = {
-            id = 1, 
-            x : positionBaliseX,
-            y : positionBaliseY
-        }
-    ]
-} */
-
-
-var fonctionJoueur = function(monJoueur){
-    
-    
-    
-    /* function newBalise(){ // function Constructeur de balise
-        var Balise = function(){
-            id = nbBalises; 
-            x = Math.floor(Math.random() * 700) + 50,
-            y = Math.floor(Math.random() * 500) + 50
-        }; 
-        monJoueur.balises.push(balise = new Balise());
-        monJoueur.nbBalises++; 
-    } */
-
-
-}
-
-var Players = function(x,y,color){ // fonction constructeur des joueurs 
-    this.posX = x;
-    this.posY = y; 
-    this.rayon = 25; 
-    this.life = 3; 
-    this.color = color; 
-    this.baliseDisponible = [];
-    this.baliseSelect = 0;
-    this.baliseConnected = false;     
-
-    this.balise = function(){ // function Constructeur de balise
-        for( var b=0; b<this.baliseDisponible.length; b++ ){
-            //console.log('je parcours les balises du joueur'); 
-            ctx.beginPath(); 
-            ctx.fillStyle = this.color; 
-            ctx.arc(this.baliseDisponible[b].Balise.balisePosX, this.baliseDisponible[b].Balise.balisePosY, this.baliseDisponible[b].Balise.rayon, 0, 2 * Math.PI );
-            ctx.fill();
-        }
-    }
-
-    this.image = function (){ // image visuelle du joueur
-        ctx.beginPath(); 
-        ctx.fillStyle = this.color; 
-        ctx.arc(this.posX, this.posY, this.rayon, 0, 2 * Math.PI );
-        ctx.fill(); 
-        //ctx.fillRect(this.posX, this.posY, 25, 25); 
-    };
-    
-    this.selectBalise = function(){ // Modifie la balise selectionner par le joueur
-        if(baliseSelect === baliseSelect.length){
-            baliseSelect = 0; 
-        }else{
-            baliseSelect += 1; 
-        } 
-    }
-
-    this.connectBalise = function(){
-        if(baliseConnected){
-            ctx.beginPath();
-            ctx.strokeStyle = this.color;
-            ctx.moveTo(this.posX, this.posY); 
-            ctx.lineTo(baliseDisponible[baliseSelect].PosBaliseX, baliseDisponible[baliseSelect].PosBaliseY);
-            ctx.stroke(); 
-        }else{ // pointeur indiquant la direction de la balise sélectionner
-
-        }
-    }
-}
 
 var timestampBalise;  
 var Balise = function(){
-    this.balisePosX = Math.floor(Math.random()*800); 
-    this.balisePosY = Math.floor(Math.random()*600);
-    this.baliseRayon = 5; 
+    this.baliseX = Math.floor(Math.random()*800); 
+    this.baliseY = Math.floor(Math.random()*600);
+    this.baliseR = 5; 
 }
 
 function creationBalise(){
     var tempsExcution = Date.now();
     var calculTime = tempsExcution - timestampBalise; 
     if(calculTime > 5000 || isNaN(calculTime)){
-        console.log(joueur); 
-        joueur.baliseDisponible.push( new Balise());
-        timestampBalise = Date.now();
-        emitInfoJoueur(); 
+        if(joueur.balises.length < 5){
+            console.log(joueur); 
+            joueur.balises.push( new Balise());
+            timestampBalise = Date.now();
+            emitInfoJoueur(); 
+        }
     }
 };
 
-/* drawBalise = function(){ // function Constructeur de balise
-    for( var b=0; b<joueur.balises.length; b++ ){
-        //console.log('je parcours les balises du joueur'); 
-        ctx.beginPath(); 
-        ctx.fillStyle = 'blue'; 
-        ctx.arc(joueur.balises[b].balisePosX, joueur.balises[b].balisePosY, joueur.balises[b].rayon, 0, 2 * Math.PI );
-        ctx.fill();
-    }
-} */
 
 /**
- * Gestion du jeux 
+ * Gestion des éléments à afficher sur le canvas  
+ */
+
+function drawJoueur(player, color){ // image visuelle du joueur
+    ctx.beginPath(); 
+    ctx.fillStyle = color; 
+    ctx.arc(player.x, player.y, player.rayon, 0, 2 * Math.PI );
+    ctx.fill(); 
+    //ctx.fillRect(this.posX, this.posY, 25, 25); 
+};
+
+function drawBalise(player, color){ // function Constructeur de balise
+    for( var b=0; b<player.balises.length; b++ ){
+        //console.log('je parcours les balises du joueur'); 
+        ctx.beginPath(); 
+        ctx.fillStyle = color; 
+        ctx.arc(player.balises[b].baliseX, player.balises[b].baliseY, player.balises[b].baliseR, 0, 2 * Math.PI );
+        ctx.fill();
+    }
+}
+
+/**
+ * Gestion des mouvement du joueur 
  */
 var codeset = {
     90 : false, // key z 
@@ -170,15 +103,15 @@ document.addEventListener('keydown', function(e){
         if(codeset[90]){
             if(!interval90){
                 idInterval90 = setInterval(function(){
-                    if (joueur.posY > 25){
-                        joueur.posY = joueur.posY - 10;
+                    if (joueur.y > 25){
+                        joueur.y = joueur.y- 10;
                         interval90 = true;
                         emitInfoJoueur(); 
                     }
                     else{
                         clearInterval(idInterval90);
                         for(var i = 0; i<5; i++){
-                            joueur.posY = joueur.posY + Rebond;
+                            joueur.y = joueur.y + Rebond;
                             emitInfoJoueur();
                         }
                     }  
@@ -189,15 +122,15 @@ document.addEventListener('keydown', function(e){
         if(codeset[68]){
             if(!interval68){
                 idInterval68 = setInterval(function(){
-                    if (joueur.posX < widthCanvas - joueur.rayon){   
-                        joueur.posX = joueur.posX + 10;
+                    if (joueur.x < widthCanvas - joueur.rayon){   
+                        joueur.x = joueur.x + 10;
                         interval68 = true;
                         emitInfoJoueur();
                     }
                     else{
                         clearInterval(idInterval68);
                         for(var i = 0; i<5; i++){
-                            joueur.posX = joueur.posX - Rebond;
+                            joueur.x = joueur.x - Rebond;
                             emitInfoJoueur();
                         }
                     }
@@ -207,15 +140,15 @@ document.addEventListener('keydown', function(e){
         if(codeset[83]){
             if(!interval83){
                 idInterval83 = setInterval(function(){
-                    if (joueur.posY < heightCanvas - joueur.rayon){
-                        joueur.posY = joueur.posY + 10;
+                    if (joueur.y < heightCanvas - joueur.rayon){
+                        joueur.y = joueur.y + 10;
                         interval83 = true;
                         emitInfoJoueur();
                     }
                     else{
                         clearInterval(idInterval83);
                         for(var i = 0; i<5; i++){
-                            joueur.posY = joueur.posY - Rebond;
+                            joueur.y = joueur.y - Rebond;
                             emitInfoJoueur();
                         }
                     }
@@ -226,15 +159,15 @@ document.addEventListener('keydown', function(e){
         if(codeset[81]){
             if(!interval81){
                 idInterval81 = setInterval(function(){
-                    if (joueur.posX > 25){
-                        joueur.posX = joueur.posX - 10;
+                    if (joueur.x > 25){
+                        joueur.x = joueur.x - 10;
                         interval81 = true;
                         emitInfoJoueur();
                     }
                     else{
                         clearInterval(idInterval81);
                         for(var i = 0; i<5; i++){
-                            joueur.posX = joueur.posX + Rebond;
+                            joueur.x = joueur.x + Rebond;
                             emitInfoJoueur();
                         }
                     }
@@ -283,23 +216,22 @@ function connectPlayer(){
         Object.keys(players).forEach(function (id) {
             if (players[id].playerId === socket.id) {
                 console.log('trouvée');
-                //console.log(players[id]); 
-                joueur = new Players(players[id].x, players[id].y, 'blue');
-                //console.log(joueur);  
+                joueur = players[id];  
               } else {
                 console.log('pas trouvée');
-                ennemy = new Players(players[id].x, players[id].y, 'red'); 
+                ennemy = players[id];
               }
         });
     });
     socket.on('newPlayer', function (playerInfo) {
         console.log(playerInfo);
-        ennemy = new Players(playerInfo.x, playerInfo.y, 'red'); 
+        ennemy = playerInfo;  
     });
     socket.on('playerMoved', function(playerInfo){
         console.log(playerInfo);
-        ennemy.posX = playerInfo.x; 
-        ennemy.posY = playerInfo.y; 
+        ennemy.x = playerInfo.x; 
+        ennemy.y = playerInfo.y;
+        ennemy.balises = playerInfo.balises;  
     })
 }
 
@@ -317,14 +249,13 @@ var moteurJeux = function(){
     clearRect();
     background();
     if(joueur){
-        joueur.image();
-        creationBalise();
-        joueur.balise(); 
-        //drawBalise();  
+        creationBalise(); 
+        drawJoueur(joueur, colorJoueur);
+        drawBalise(joueur, colorJoueur);
     }
     if(ennemy){
-        ennemy.image();
-        //ennemy.balise(); 
+        drawJoueur(ennemy, colorEnnemy); 
+        drawBalise(ennemy, colorEnnemy);
     }
       
     requestAnimationFrame(moteurJeux, 1000/30); 
