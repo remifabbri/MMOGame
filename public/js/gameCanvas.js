@@ -33,7 +33,9 @@ var timestampBalise;
 var Balise = function(){
     this.baliseX = Math.floor(Math.random()*800); 
     this.baliseY = Math.floor(Math.random()*600);
-    this.baliseR = 5; 
+    this.baliseR = 5;
+    this.targetB = false;
+    this.lifeChrono = 5000; 
 }
 
 function creationBalise(){
@@ -41,7 +43,7 @@ function creationBalise(){
     var calculTime = tempsExcution - timestampBalise; 
     if(calculTime > 5000 || isNaN(calculTime)){
         if(joueur.balises.length < 5){
-            console.log(joueur); 
+            //console.log(joueur); 
             joueur.balises.push( new Balise());
             timestampBalise = Date.now();
             emitInfoJoueur(); 
@@ -54,7 +56,8 @@ function creationBalise(){
  * Gestion des éléments à afficher sur le canvas  
  */
 
-function drawJoueur(player, color){ // image visuelle du joueur
+function drawJoueur(player, color){ 
+    // image visuelle du joueur
     ctx.beginPath(); 
     ctx.fillStyle = color; 
     ctx.arc(player.x, player.y, player.rayon, 0, 2 * Math.PI );
@@ -72,44 +75,53 @@ function drawBalise(player, color){ // function Constructeur de balise
     }
 }
 
+function drawLink(player){
+    //console.log(player);
+    ctx.strokeStyle = "#4dd2ff";
+    ctx.moveTo(player.x,player.y);
+    ctx.lineTo(player.balises[player.targetBalises].baliseX ,player.balises[player.targetBalises].baliseY);
+    ctx.stroke();
+}
+
 /**
  * Gestion des mouvement du joueur 
  */
 var codeset = {
-    90 : false, // key z 
+    69 : false, // key e 
+    70 : false, // key f
     68 : false, // key d
-    83 : false, // key s
-    81 : false  // key q
+    83 : false,  // key s
+    226 : false,
+    32: false
 }
 
-var idInterval90,
+var idInterval69,
+    idInterval70,
     idInterval68,
-    idInterval83,
-    idInterval81
+    idInterval83
 
-var interval90 = false,
+var interval69 = false,
+    interval70 = false,
     interval68 = false,
-    interval83 = false,
-    interval81 = false
+    interval83 = false
 
-var animation = false; 
+var animation = false
 
 document.addEventListener('keydown', function(e){
-    //Valeur du margin a * par 5
     var Rebond = 15;
     if(e.keyCode in codeset){
         codeset[e.keyCode] = true;
-        //console.log(codeset[e.keyCode]); 
-        if(codeset[90]){
-            if(!interval90){
-                idInterval90 = setInterval(function(){
+        //console.log(e.keyCode); 
+        if(codeset[69]){
+            if(!interval69){
+                idInterval69 = setInterval(function(){
                     if (joueur.y > 25){
                         joueur.y = joueur.y- 10;
-                        interval90 = true;
+                        interval69 = true;
                         emitInfoJoueur(); 
                     }
                     else{
-                        clearInterval(idInterval90);
+                        clearInterval(idInterval69);
                         for(var i = 0; i<5; i++){
                             joueur.y = joueur.y + Rebond;
                             emitInfoJoueur();
@@ -119,16 +131,16 @@ document.addEventListener('keydown', function(e){
             }
             
         }
-        if(codeset[68]){
-            if(!interval68){
-                idInterval68 = setInterval(function(){
+        if(codeset[70]){
+            if(!interval70){
+                idInterval70 = setInterval(function(){
                     if (joueur.x < widthCanvas - joueur.rayon){   
                         joueur.x = joueur.x + 10;
-                        interval68 = true;
+                        interval70 = true;
                         emitInfoJoueur();
                     }
                     else{
-                        clearInterval(idInterval68);
+                        clearInterval(idInterval70);
                         for(var i = 0; i<5; i++){
                             joueur.x = joueur.x - Rebond;
                             emitInfoJoueur();
@@ -137,16 +149,16 @@ document.addEventListener('keydown', function(e){
                 }, 1000/30);
             }   
         }
-        if(codeset[83]){
-            if(!interval83){
-                idInterval83 = setInterval(function(){
+        if(codeset[68]){
+            if(!interval68){
+                idInterval68 = setInterval(function(){
                     if (joueur.y < heightCanvas - joueur.rayon){
                         joueur.y = joueur.y + 10;
-                        interval83 = true;
+                        interval68 = true;
                         emitInfoJoueur();
                     }
                     else{
-                        clearInterval(idInterval83);
+                        clearInterval(idInterval68);
                         for(var i = 0; i<5; i++){
                             joueur.y = joueur.y - Rebond;
                             emitInfoJoueur();
@@ -156,16 +168,16 @@ document.addEventListener('keydown', function(e){
                 }, 1000/30);
             }
         }
-        if(codeset[81]){
-            if(!interval81){
-                idInterval81 = setInterval(function(){
+        if(codeset[83]){
+            if(!interval83){
+                idInterval83 = setInterval(function(){
                     if (joueur.x > 25){
                         joueur.x = joueur.x - 10;
-                        interval81 = true;
+                        interval83 = true;
                         emitInfoJoueur();
                     }
                     else{
-                        clearInterval(idInterval81);
+                        clearInterval(idInterval83);
                         for(var i = 0; i<5; i++){
                             joueur.x = joueur.x + Rebond;
                             emitInfoJoueur();
@@ -174,6 +186,35 @@ document.addEventListener('keydown', function(e){
                 }, 1000/30);
             } 
         }
+
+        if(codeset[226]){
+            var nombreDeBalises = joueur.balises.length;
+            var prochaineBalises = joueur.targetBalises+1;
+            console.log(joueur.balises.length);
+            console.log(joueur.targetBalises);
+            if(!joueur.onTarget){
+                if(prochaineBalises >  nombreDeBalises ){
+                    joueur.targetBalises = 0; 
+                    emitInfoJoueur(); 
+                    console.log('max');
+                }else{
+                    joueur.targetBalises = prochaineBalises;
+                    emitInfoJoueur(); 
+                    console.log("pas max"); 
+                }
+            }
+        }
+        
+        if(codeset[32]){
+            console.log(joueur.targetBalises);
+            if(joueur.onTarget){
+                joueur.onTarget = false;
+                emitInfoJoueur(); 
+            }else{
+                joueur.onTarget = true;
+                emitInfoJoueur();  
+            }
+        }  
     }
 }); 
 
@@ -182,24 +223,24 @@ document.addEventListener('keyup', function(e){
         //console.log('keyup listener ok ! touche '+ e.keyCode + ' UP'); 
         codeset[e.keyCode] = false;
         switch(e.keyCode){
-            case 90:
-                clearInterval(idInterval90);
-                interval90 = false; 
+            case 69:
+                clearInterval(idInterval69);
+                interval69 = false; 
                 break;
+            case 70:
+                clearInterval(idInterval70);
+                interval70 = false; 
+                break; 
             case 68:
                 clearInterval(idInterval68);
-                interval68 = false; 
+                interval68 = false;
                 break; 
             case 83:
                 clearInterval(idInterval83);
                 interval83 = false;
-                break; 
-            case 81:
-                clearInterval(idInterval81);
-                interval81 = false;
                 break;
             default:
-                console.log('je passe dans le default du switch !'); 
+                //console.log('je passe dans le default du switch !'); 
         } 
     }
 }); 
@@ -252,6 +293,11 @@ var moteurJeux = function(){
         creationBalise(); 
         drawJoueur(joueur, colorJoueur);
         drawBalise(joueur, colorJoueur);
+         
+        if(joueur.onTarget === true){
+            //console.log(joueur.onTarget);
+            drawLink(joueur); 
+        }
     }
     if(ennemy){
         drawJoueur(ennemy, colorEnnemy); 

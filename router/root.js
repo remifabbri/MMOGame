@@ -62,8 +62,9 @@ router.get('/game', function(req, res){
             x: Math.floor(Math.random() * 800),
             y: Math.floor(Math.random() * 600),
             rayon: 15,
-            balises: []
-            
+            balises: [],
+            targetBalises: 0, 
+            onTarget: false
         };
         // send the players object to the new player
         socket.emit('currentPlayers', players);
@@ -71,20 +72,13 @@ router.get('/game', function(req, res){
         // update all other players of the new player
         socket.broadcast.emit('newPlayer', players[socket.id]);
 
-        // when a player moves, update the player data
-        socket.on('playerMovement', function (movementData) {
-            players[socket.id].x = movementData.x;
-            players[socket.id].y = movementData.y;
-            players[socket.id].rotation = movementData.rotation;
-            // emit a message to all players about the player that moved
-            socket.broadcast.emit('playerMoved', players[socket.id]);
-        });
-
         socket.on('changeInfoJoueur', function(infoJoueur){
             console.log(infoJoueur);
             players[socket.id].x = infoJoueur.x; 
             players[socket.id].y = infoJoueur.y;
             players[socket.id].balises = infoJoueur.balises;
+            players[socket.id].targetBalises = infoJoueur.targetBalises; 
+            players[socket.id].onTarget = infoJoueur.onTarget; 
             socket.broadcast.emit('playerMoved', players[socket.id]);
         });     
         
