@@ -1,3 +1,4 @@
+'use_strict'; 
 /* 
 * Socket.io    namspace = /game alias nspGame
 */
@@ -24,7 +25,6 @@ function background(){
     ctx.fillRect(0, 0, widthCanvas, heightCanvas); 
 }
 
-
 /**
  * Gestion du jeux 
  */
@@ -43,14 +43,12 @@ function creationBalise(){
     var calculTime = tempsExcution - timestampBalise; 
     if(calculTime > 5000 || isNaN(calculTime)){
         if(joueur.balises.length < 5){
-            //console.log(joueur); 
             joueur.balises.push( new Balise());
             timestampBalise = Date.now();
             emitInfoJoueur(); 
         }
     }
 };
-
 
 /**
  * Gestion des éléments à afficher sur le canvas  
@@ -67,7 +65,6 @@ function drawJoueur(player, color){
 
 function drawBalise(player, color){ // function Constructeur de balise
     for( var b=0; b<player.balises.length; b++ ){
-        //console.log('je parcours les balises du joueur'); 
         ctx.beginPath(); 
         ctx.fillStyle = color; 
         ctx.arc(player.balises[b].baliseX, player.balises[b].baliseY, player.balises[b].baliseR, 0, 2 * Math.PI );
@@ -75,9 +72,9 @@ function drawBalise(player, color){ // function Constructeur de balise
     }
 }
 
-function drawLink(player){
+function drawLink(player, color){
     //console.log(player);
-    ctx.strokeStyle = "#4dd2ff";
+    ctx.strokeStyle = color;
     ctx.moveTo(player.x,player.y);
     ctx.lineTo(player.balises[player.targetBalises].baliseX ,player.balises[player.targetBalises].baliseY);
     ctx.stroke();
@@ -91,161 +88,110 @@ var codeset = {
     70 : false, // key f
     68 : false, // key d
     83 : false,  // key s
-    226 : false,
-    32: false
 }
 
-var idInterval69,
-    idInterval70,
-    idInterval68,
-    idInterval83
-
-var interval69 = false,
-    interval70 = false,
-    interval68 = false,
-    interval83 = false
-
-var animation = false
-
 document.addEventListener('keydown', function(e){
-    var Rebond = 15;
     if(e.keyCode in codeset){
         codeset[e.keyCode] = true;
-        //console.log(e.keyCode); 
-        if(codeset[69]){
-            if(!interval69){
-                idInterval69 = setInterval(function(){
-                    if (joueur.y > 25){
-                        joueur.y = joueur.y- 10;
-                        interval69 = true;
-                        emitInfoJoueur(); 
-                    }
-                    else{
-                        clearInterval(idInterval69);
-                        for(var i = 0; i<5; i++){
-                            joueur.y = joueur.y + Rebond;
-                            emitInfoJoueur();
-                        }
-                    }  
-                }, 1000/30);
-            }
-            
-        }
-        if(codeset[70]){
-            if(!interval70){
-                idInterval70 = setInterval(function(){
-                    if (joueur.x < widthCanvas - joueur.rayon){   
-                        joueur.x = joueur.x + 10;
-                        interval70 = true;
-                        emitInfoJoueur();
-                    }
-                    else{
-                        clearInterval(idInterval70);
-                        for(var i = 0; i<5; i++){
-                            joueur.x = joueur.x - Rebond;
-                            emitInfoJoueur();
-                        }
-                    }
-                }, 1000/30);
-            }   
-        }
-        if(codeset[68]){
-            if(!interval68){
-                idInterval68 = setInterval(function(){
-                    if (joueur.y < heightCanvas - joueur.rayon){
-                        joueur.y = joueur.y + 10;
-                        interval68 = true;
-                        emitInfoJoueur();
-                    }
-                    else{
-                        clearInterval(idInterval68);
-                        for(var i = 0; i<5; i++){
-                            joueur.y = joueur.y - Rebond;
-                            emitInfoJoueur();
-                        }
-                    }
-                    
-                }, 1000/30);
-            }
-        }
-        if(codeset[83]){
-            if(!interval83){
-                idInterval83 = setInterval(function(){
-                    if (joueur.x > 25){
-                        joueur.x = joueur.x - 10;
-                        interval83 = true;
-                        emitInfoJoueur();
-                    }
-                    else{
-                        clearInterval(idInterval83);
-                        for(var i = 0; i<5; i++){
-                            joueur.x = joueur.x + Rebond;
-                            emitInfoJoueur();
-                        }
-                    }
-                }, 1000/30);
-            } 
-        }
-
-        if(codeset[226]){
-            var nombreDeBalises = joueur.balises.length;
-            var prochaineBalises = joueur.targetBalises+1;
-            console.log(joueur.balises.length);
-            console.log(joueur.targetBalises);
-            if(!joueur.onTarget){
-                if(prochaineBalises >  nombreDeBalises ){
-                    joueur.targetBalises = 0; 
-                    emitInfoJoueur(); 
-                    console.log('max');
-                }else{
-                    joueur.targetBalises = prochaineBalises;
-                    emitInfoJoueur(); 
-                    console.log("pas max"); 
-                }
-            }
-        }
-        
-        if(codeset[32]){
-            console.log(joueur.targetBalises);
-            if(joueur.onTarget){
-                joueur.onTarget = false;
-                emitInfoJoueur(); 
-            }else{
-                joueur.onTarget = true;
-                emitInfoJoueur();  
-            }
-        }  
     }
 }); 
 
 document.addEventListener('keyup', function(e){
-    if(e.keyCode in codeset){
-        //console.log('keyup listener ok ! touche '+ e.keyCode + ' UP'); 
-        codeset[e.keyCode] = false;
-        switch(e.keyCode){
-            case 69:
-                clearInterval(idInterval69);
-                interval69 = false; 
-                break;
-            case 70:
-                clearInterval(idInterval70);
-                interval70 = false; 
-                break; 
-            case 68:
-                clearInterval(idInterval68);
-                interval68 = false;
-                break; 
-            case 83:
-                clearInterval(idInterval83);
-                interval83 = false;
-                break;
-            default:
-                //console.log('je passe dans le default du switch !'); 
-        } 
+    if(e.keyCode in codeset){ 
+        codeset[e.keyCode] = false; 
     }
 }); 
 
+function checkCodeSetIstrue(ObjControle){
+    var Rebond = 15;
 
+    if(ObjControle[69] === true){
+        (function(){
+            if (joueur.y > 25){
+                joueur.y = joueur.y- 10;
+                interval69 = true;
+                emitInfoJoueur(); 
+            }
+            else{
+                for(var i = 0; i<5; i++){
+                    joueur.y = joueur.y + Rebond;
+                    emitInfoJoueur();
+                }
+            }  
+        })();
+    }
+    if(ObjControle[70] === true){
+        (function(){
+            if (joueur.x < widthCanvas - joueur.rayon){   
+                joueur.x = joueur.x + 10;
+                interval70 = true;
+                emitInfoJoueur();
+            }
+            else{
+                for(var i = 0; i<5; i++){
+                    joueur.x = joueur.x - Rebond;
+                    emitInfoJoueur();
+                }
+            }
+        })();
+    }
+    if(ObjControle[68] === true){
+        (function(){
+            if (joueur.y < heightCanvas - joueur.rayon){
+                joueur.y = joueur.y + 10;
+                interval68 = true;
+                emitInfoJoueur();
+            }
+            else{
+                for(var i = 0; i<5; i++){
+                    joueur.y = joueur.y - Rebond;
+                    emitInfoJoueur();
+                }
+            }
+        })();  
+    }
+    if(ObjControle[83] === true){
+        (function(){
+            if (joueur.x > 25){
+                joueur.x = joueur.x - 10;
+                interval83 = true;
+                emitInfoJoueur();
+            }
+            else{
+                for(var i = 0; i<5; i++){
+                    joueur.x = joueur.x + Rebond;
+                    emitInfoJoueur();
+                }
+            }
+        })();
+    }
+}
+
+document.addEventListener('keydown', function(e){
+    if(e.keyCode === 226){
+        var nombreDeBalises = joueur.balises.length;
+        var prochaineBalises = joueur.targetBalises+1;
+        if(!joueur.onTarget){
+            if(prochaineBalises ===  nombreDeBalises ){
+                joueur.targetBalises = 0; 
+                emitInfoJoueur();
+            }else{
+                joueur.targetBalises = prochaineBalises;
+                emitInfoJoueur(); 
+            }
+        }
+    }
+    
+    if(e.keyCode === 32){
+        if(joueur.onTarget){
+            joueur.onTarget = false;
+            emitInfoJoueur(); 
+        }else{
+            joueur.onTarget = true;
+            emitInfoJoueur();  
+        }
+    }
+}); 
 
 function emitInfoJoueur(){
     socket.emit("changeInfoJoueur", joueur); 
@@ -256,23 +202,24 @@ function connectPlayer(){
     socket.on('currentPlayers', function(players){
         Object.keys(players).forEach(function (id) {
             if (players[id].playerId === socket.id) {
-                console.log('trouvée');
+                //console.log('trouvée');
                 joueur = players[id];  
               } else {
-                console.log('pas trouvée');
+                //console.log('pas trouvée');
                 ennemy = players[id];
               }
         });
     });
     socket.on('newPlayer', function (playerInfo) {
-        console.log(playerInfo);
+        //console.log(playerInfo);
         ennemy = playerInfo;  
     });
     socket.on('playerMoved', function(playerInfo){
-        console.log(playerInfo);
+        //console.log(playerInfo);
         ennemy.x = playerInfo.x; 
         ennemy.y = playerInfo.y;
-        ennemy.balises = playerInfo.balises;  
+        ennemy.balises = playerInfo.balises;
+        ennemy.onTarget = playerInfo.onTarget;  
     })
 }
 
@@ -289,21 +236,25 @@ var init = function(){ // Initialisation du canvas
 var moteurJeux = function(){
     clearRect();
     background();
+    checkCodeSetIstrue(codeset);
+
     if(joueur){
         creationBalise(); 
         drawJoueur(joueur, colorJoueur);
         drawBalise(joueur, colorJoueur);
          
         if(joueur.onTarget === true){
-            //console.log(joueur.onTarget);
-            drawLink(joueur); 
+            drawLink(joueur, colorJoueur); 
         }
     }
     if(ennemy){
         drawJoueur(ennemy, colorEnnemy); 
         drawBalise(ennemy, colorEnnemy);
+        if(ennemy.onTarget === true){ 
+            drawLink(ennemy, colorEnnemy); 
+        }
     }
-      
+    // si prob d'affichage de l'ennemy pensé a mettre l'aobjet de retour a jour (pensé a la factorisation de l'objet en retour) 
     requestAnimationFrame(moteurJeux, 1000/30); 
 }
 
