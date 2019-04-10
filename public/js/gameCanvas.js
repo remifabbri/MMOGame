@@ -3,6 +3,10 @@
 * Socket.io    namspace = /game alias nspGame
 */
 
+var socket = io('ws://127.0.0.1:8090/game');
+
+
+
 // var global du jeu
 var canvas, 
     ctx,
@@ -14,16 +18,14 @@ var canvas,
     colorEnnemy = "red"; 
     colorJoueur = "blue";  
 
-var socket = io('ws://127.0.0.1:8090/game');
-
 function clearRect(){ 
     ctx.clearRect(0,0,widthCanvas, heightCanvas); 
-}
+};
 
 function background(){
     ctx.fillStyle= "black"; 
     ctx.fillRect(0, 0, widthCanvas, heightCanvas); 
-}
+};
 
 /**
  * Gestion du jeux 
@@ -36,7 +38,7 @@ var Balise = function(){
     this.baliseR = 5;
     this.targetB = false;
     this.lifeChrono = 5000; 
-}
+}; 
 
 function creationBalise(){
     var tempsExcution = Date.now();
@@ -45,6 +47,16 @@ function creationBalise(){
         if(joueur.balises.length < 5){
             joueur.balises.push( new Balise());
             timestampBalise = Date.now();
+            emitInfoJoueur(); 
+        }
+    }
+};
+
+function controleBalise(player){
+    for(b=0; b<player.balises.length; b++ ){
+        if(player.balises[b].lifeChrono <= 0){
+            player.onTarget = false; 
+            delete player.balises[b];
             emitInfoJoueur(); 
         }
     }
@@ -70,7 +82,7 @@ function drawBalise(player, color){ // function Constructeur de balise
         ctx.arc(player.balises[b].baliseX, player.balises[b].baliseY, player.balises[b].baliseR, 0, 2 * Math.PI );
         ctx.fill();
     }
-}
+};
 
 function drawLink(player, color){
     //console.log(player);
@@ -78,7 +90,7 @@ function drawLink(player, color){
     ctx.moveTo(player.x,player.y);
     ctx.lineTo(player.balises[player.targetBalises].baliseX ,player.balises[player.targetBalises].baliseY);
     ctx.stroke();
-}
+};
 
 /**
  * Gestion des mouvement du joueur 
@@ -193,6 +205,10 @@ document.addEventListener('keydown', function(e){
     }
 }); 
 
+function setTimeUseBalise(player){
+    player.balises[player.targetBalises].lifeChrono -= 1000/30; 
+}
+
 function emitInfoJoueur(){
     socket.emit("changeInfoJoueur", joueur); 
 }
@@ -242,9 +258,11 @@ var moteurJeux = function(){
         creationBalise(); 
         drawJoueur(joueur, colorJoueur);
         drawBalise(joueur, colorJoueur);
+        controleBalise(joueur); 
          
         if(joueur.onTarget === true){
-            drawLink(joueur, colorJoueur); 
+            setTimeUseBalise(joueur); 
+            drawLink(joueur, colorJoueur);
         }
     }
     if(ennemy){
