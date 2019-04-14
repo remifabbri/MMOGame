@@ -35,23 +35,72 @@ app.use(session({
     
 }));
 
-let joueurCo = []; 
+let joueurCo = [];
 
-let userCo; 
 
 app.get('/', function(req, res){
     console.log(req.session);
-    userCo = req.session.userName;
     var messageConnexion = req.query.message;
-    console.log(joueurCo); 
-    if(userCo){
+    console.log('object joueur Conect',joueurCo);
+
+    
+    
+    io.on('connection', function(client) {
+        console.log('Client connected...'); 
+    
+        //console.log(client.id);
+        
+        /* if(.hasOwnProperty('name')){
+            function findInjoueurCo(tabObj){
+                return tabObj.name === userCo.name;  
+            }
+        } */
+        
+        /* var result = joueurCo.filter(obj => {
+            return obj.name === currentPlayer; 
+        }) */
+    
+    
+        console.log(req.session.infoUser);
+        if(req.session.infoUser !== undefined){
+            req.session.infoUser.idSocket = client.id;
+            //joueurCo.idSocket = client.id;
+            var result = joueurCo.filter(obj => {
+                return obj.name === req.session.infoUser.name; 
+            })
+            result[0].idSocket = client.id;
+            console.log('result de la fonction', result)
+            console.log('tabof joureurco', joueurCo);
+            console.log(req.session.infoUser.idSocket)  
+        }
+        
+    
+        client.emit('listUser', joueurCo);
+        client.broadcast.emit('listUser', joueurCo);
+    
+        client.on('userJoin', function(data) {
+            console.log(data);
+        });
+    
+        client.emit('messages', 'Hello from server');
+        
+        client.on('messages', function(data) {
+            client.emit('broad', data);
+            client.broadcast.emit('broad',data);
+        });
+    }); 
+
+
+
+
+    if(req.session.userIsConnect){
         res.render('home.pug',{
-            userCo: true,
+            userIsConnect: true,
             messageConnexion: messageConnexion 
         });
     }else{
         res.render('home.pug', {
-            userCo: false
+            userIsConnect: false
         });
     } 
 });
@@ -75,12 +124,21 @@ app.post('/connexion', function (req, res) {
                     if (docs[0].password === req.body.password) {
                         req.session.identifiantSession = 1234;
                         req.session.userName = docs[0].pseudo;
-                        userCo = {name : docs[0].pseudo} 
                         res.status(200); 
+                        req.session.userIsConnect = true
+                        
+                        req.session.infoUser = {
+                            name: req.session.userName,
+                            idSocket : undefined
+                        }
+
+                        joueurCo.push(req.session.infoUser);
                         var message = "Bravo vous êtes maintenant authentifier :)"
                         res.redirect('/?message='+ message)
-                        joueurCo.push(userCo);
+                        
+                        
                     }else{
+                        req.session.userIsConnect = false
                         res.render('home',{
                             messageConnexion: "Nom de Compte ou mot de passe incorrect :/"
                         })
@@ -205,33 +263,7 @@ app.get('/game', function(req, res){
 
 
 
-io.on('connection', function(client) {
-    console.log('Client connected...'); 
 
-    console.log(client.id);
-    
-    /* if(userCo.hasOwnProperty('name')){
-        function findInjoueurCo(tabObj){
-            return tabObj.name === userCo.name;  
-        }
-    }
-
-    console.log(joueurCo.find(findInjoueurCo)); */
-
-    client.emit('listUser', joueurCo);
-    client.broadcast.emit('listUser', joueurCo);
-
-    client.on('userJoin', function(data) {
-        console.log(data);
-    });
-
-    client.emit('messages', 'Hello from server');
-    
-    client.on('messages', function(data) {
-        client.emit('broad', data);
-        client.broadcast.emit('broad',data);
-    });
-}); 
 
 
 

@@ -2,7 +2,7 @@ extends _layout.pug
 
 block content
     include -nav.pug
-    if !userCo
+    if !userIsConnect
         h2 Connexion
             p= messageCrea
             p= messageConnexion
@@ -13,7 +13,7 @@ block content
                 input(type="password" name="mdp")
                 button(type="submit") Connexion
     
-    if userCo
+    if userIsConnect
         p= messageConnexion
         div.rulesGame
             h2 régle du jeu
