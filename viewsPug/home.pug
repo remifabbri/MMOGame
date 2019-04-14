@@ -2,20 +2,31 @@ extends _layout.pug
 
 block content
     include -nav.pug
+    if !userCo
+        h2 Connexion
+            p= messageCrea
+            p= messageConnexion
+            form(action="http://localhost:8090/connexion" method="POST")
+                label Pseudo
+                input(type="text" name="pseudo")
+                label Mot de passe
+                input(type="password" name="mdp")
+                button(type="submit") Connexion
     
-    div.rulesGame
-        h2 régle du jeu
-    div.chat
-        #future
-        form#form
-            input#chat_input(type='text' autocomplete="off")
-            input(type='submit', value='Send')
+    if userCo
+        p= messageConnexion
+        div.rulesGame
+            h2 régle du jeu
 
-    div.btnStartGame
-        button#matchmaking(type="button") Matchmaking
-    div.listUserConnected
-        h2 Joueurs Connectés
-        div
+        div.chat
+            #future
+            form#formChat
+                input#chat_input(type='text' autocomplete="off")
+                input(type='submit', value='Send')
+
+        div.listUserConnected
+            h2 Joueurs Connectés
+            #playerCo
     
     script(src='/node/jquery/dist/jquery.js')
     
@@ -24,14 +35,30 @@ block content
     script.
         $(function() {
             var socket = io.connect();
-            socket.on('connect', function(data) {
-                socket.emit('join', 'Hello World from client');
-            });
+            
+            socket.on('listUser', function(data){
+                console.log("j'ecoute");
+                console.log(data); 
+                var element = document.getElementById("playerCo");
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                } 
+                for(i=0; i<data.length; i++){
+                    console.log(data[i]);
+                    $('#playerCo').append("<div><span>" + data[i].name + "</span><span><button id="+data[i]+">Batle</button></span></div>"); 
+                }
+            }); 
+
+            socket.on('playerCo', function(data){
+                console.log(data); 
+               
+            })
+
             socket.on('broad', function(data) {
                 var dateMessage = new Date(data.time).toLocaleTimeString('fr-FR');
                 $('#future').append("<div><span>" + data.pseudoUser + "</span><span>" + dateMessage + "</span><br/><p>" + data.message + "</p></div>");
             });
-            $('form').submit(function(e){
+            $('#formChat').submit(function(e){
                 e.preventDefault();
                 console.log(e);
                 //var pseudoUser = $('#PseudoUser').text(); 
@@ -55,6 +82,10 @@ block content
                     document.write(data);
                 }); 
             });
+
+
+            
+            
         }); 
 
 

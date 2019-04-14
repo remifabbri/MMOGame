@@ -53,11 +53,17 @@ function creationBalise(){
 };
 
 function controleBalise(player){
+    console.log(player.balises);
     for(b=0; b<player.balises.length; b++ ){
         if(player.balises[b].lifeChrono <= 0){
+            console.log(player.balises[b])
             player.onTarget = false; 
-            delete player.balises[b];
-            emitInfoJoueur(); 
+            console.log(b); 
+            console.log(player.balises.slice(b, 1)); 
+            player.balises.slice(b, 1);
+            console.log("supprimer l'element", player.balises);
+            emitInfoJoueur();
+             
         }
     }
 };
@@ -253,7 +259,7 @@ var moteurJeux = function(){
     clearRect();
     background();
     checkCodeSetIstrue(codeset);
-
+ 
     if(joueur){
         creationBalise(); 
         drawJoueur(joueur, colorJoueur);
@@ -268,6 +274,7 @@ var moteurJeux = function(){
     if(ennemy){
         drawJoueur(ennemy, colorEnnemy); 
         drawBalise(ennemy, colorEnnemy);
+        console.log(ennemy.balises); 
         if(ennemy.onTarget === true){ 
             drawLink(ennemy, colorEnnemy); 
         }

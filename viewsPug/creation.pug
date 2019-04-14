@@ -1,0 +1,14 @@
+extends _layout.pug
+
+block content
+    include -nav.pug
+    
+    p= valueErr
+    div
+        h2 Connexion
+        form(action="http://localhost:8090/creerCompte" method="POST")
+            label Pseudo
+            input(type="text" name="pseudo")
+            label Mot de passe
+            input(type="password" name="mdp")
+            button(type="submit") Créer un compte
